@@ -52,3 +52,5 @@ aa1db8,127.0.0.1,POST,http://127.0.0.1:8000/api/tests,1755078991,,500,request
 715af6,127.0.0.1,POST,http://127.0.0.1:8000/api/errors,1755099643,,201,request
 e11916,127.0.0.1,POST,http://127.0.0.1:8000/api/errors,1755101553,,201,request
 537178,127.0.0.1,POST,http://127.0.0.1:8000/api/errors,1755212159,,201,request
+ebcd69,127.0.0.1,POST,http://127.0.0.1:8000/api/errors,1755516858,,200,request
+4d448e,127.0.0.1,POST,http://127.0.0.1:8000/api/errors,1755516904,,200,request

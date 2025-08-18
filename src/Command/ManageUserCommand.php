@@ -32,7 +32,6 @@ class ManageUserCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $io->title('Gestion des utilisateurs');
 
-        // Demande des informations
         $login = $io->ask('Login (email ou téléphone)', null, function ($login) {
             if (empty($login)) {
                 throw new \RuntimeException('Le login ne peut pas être vide');
@@ -52,7 +51,6 @@ class ManageUserCommand extends Command
 
         $isActive = $io->confirm('Activer le compte ?', true);
 
-        // Vérification si l'utilisateur existe déjà
         $existingUser = $this->em->getRepository(User::class)->findOneBy(['login' => $login]);
         if ($existingUser) {
             $io->note('Un utilisateur avec ce login existe déjà. Mise à jour en cours...');
@@ -62,13 +60,12 @@ class ManageUserCommand extends Command
             $io->note('Création d\'un nouvel utilisateur...');
         }
 
-        // Configuration de l'utilisateur
+
         $user->setLogin($login);
         $user->setPassword($this->passwordHasher->hashPassword($user, $password));
         $user->setIsActive($isActive);
-        $user->setRoles(['ROLE_USER']); // Role par défaut
+        $user->setRoles(['ROLE_USER']); 
 
-        // Persistance
         $this->em->persist($user);
         $this->em->flush();
 
