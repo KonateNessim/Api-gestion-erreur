@@ -1,0 +1,23 @@
+nelmio_api_doc:
+  documentation:
+    servers:
+      - url: http://127.0.0.1:8000
+    info:
+      title: Documentation API Application 
+      description: APIs pour toute la gestion du projet
+      version: 1.0.0
+
+    # Définir le schéma de sécurité pour Bearer
+    components:
+      securitySchemes:
+        BearerAuth:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+
+    security:
+      - BearerAuth: []  # Spécifie que la documentation utilise BearerAuth
+
+  areas: # to filter documented areas
+    path_patterns:
+      - ^/api(?!/doc$)  # Accepts routes under /api except /api/doc
