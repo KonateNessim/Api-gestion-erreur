@@ -11,7 +11,7 @@ use Symfony\Component\Mime\Email;
 class SendMailService
 {
     private $mailer;
-      private string $emailSender;
+    private string $emailSender;
     private string $emailReceiver;
 
 
@@ -25,7 +25,7 @@ class SendMailService
          $this->emailSender = $emailSender;
         $this->emailReceiver = $emailReceiver;
 
-        dd($this->emailSender);
+        //dd($this->emailSender);
     }
 
     public function send(
@@ -37,8 +37,8 @@ class SendMailService
         array $attachments = []
     ): void {
         $email = (new TemplatedEmail())
-            ->from(new Address($from))
-            ->to(new Address($to))
+            ->from(new Address($this->emailSender))
+            ->to(new Address($this->emailReceiver))
             ->subject($subject)
             ->htmlTemplate($template)
             ->context($context);
