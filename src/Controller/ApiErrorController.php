@@ -398,7 +398,7 @@ class ApiErrorController extends ApiInterface
             'depps@myonmci.ci',
             "konatenhamed@gmail.com",
             'Informations',
-            'content_mail',
+            'emails/critical_error.html.twig',
             $context
         );
        
