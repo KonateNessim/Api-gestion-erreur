@@ -1,32 +1,32 @@
 # config/services.yaml
 parameters:
     # Configuration JWT
-    jwt.secret: '%env(JWT_SECRET)%'
-    jwt.ttl: '%env(JWT_TTL)%'
-    app.jwt.secret: '%env(string:JWT_SECRET)%'
-    app.jwt.ttl: '%env(int:JWT_TTL)%'
-    env(EMAIL_RECEIVER): '%env(resolve:EMAIL_RECEIVER)%'
-    env(EMAIL_SENDER): '%env(resolve:EMAIL_SENDER)%'
+    app.email.receiver: '%env(resolve:EMAIL_RECEIVER)%'
+    app.email.sender: '%env(resolve:EMAIL_SENDER)%'
 
 services:
     _defaults:
         autowire: true
         autoconfigure: true
         bind:
-            string $jwtSecret: '%app.jwt.secret%'
-            int $jwtTtl: '%app.jwt.ttl%'
-
-    App\Service\JwtService:
-        arguments:
-            $secret: '%jwt.secret%'
-            $ttl: '%jwt.ttl%'
-        autowire: false 
+            string $emailSender: '%app.email.sender%'
+            string $emailReceiver: '%app.email.receiver%'
+     
 
     App\EventListener\ExceptionListener:
         arguments:
             $httpClient: '@http_client'
         tags:
             - { name: kernel.event_listener, event: kernel.exception }
+
+    App\Service\ReportGeneratorService:
+        arguments: []
+
+    App\Service\SendMailService:
+        arguments:
+            $mailer: '@mailer.mailer'
+            $emailSender: '%env(EMAIL_SENDER)%'
+            $emailReceiver: '%env(EMAIL_RECEIVER)%'
 
     App\:
         resource: '../src/'

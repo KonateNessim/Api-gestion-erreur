@@ -46,7 +46,7 @@ class ExceptionListener
 
             $priority = $this->determinePriority($exception, $statusCode);
 
-            $errorLog = new ErrorTicket();
+           /*  $errorLog = new ErrorTicket();
             $errorLog->setDate(new \DateTime());
             $errorLog->setMessage($message);
             $errorLog->setTrace($exception->getTraceAsString());
@@ -63,7 +63,7 @@ class ExceptionListener
             $errorLog->setProjectName('PorjetGestionErreur');
 
             $this->em->persist($errorLog);
-            $this->em->flush();
+            $this->em->flush(); */
 
             $this->logger->error('Exception capturée dans le listener', [
                 'message' => $message,

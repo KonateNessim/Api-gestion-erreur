@@ -25,7 +25,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ApiInterface extends AbstractController
 {
-    use FileTrait;
+ 
 
     protected const UPLOAD_PATH = 'media_deeps';
     protected $security;
@@ -41,16 +41,14 @@ class ApiInterface extends AbstractController
 
     protected $serializer;
 
-    public function __construct(EntityManagerInterface $em, Utils $utils,UserPasswordHasherInterface $hasher, HttpClientInterface $client, SerializerInterface $serializer, ValidatorInterface $validator, UserRepository $userRepository)
+    public function __construct(EntityManagerInterface $em, HttpClientInterface $client, SerializerInterface $serializer, ValidatorInterface $validator)
     {
 
         $this->client = $client;
         $this->em = $em;
         $this->serializer = $serializer;
         $this->validator = $validator;
-        $this->userRepository = $userRepository;
-        $this->utils = $utils;
-        $this->hasher = $hasher;
+    
     }
 
 

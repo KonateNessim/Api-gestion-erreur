@@ -8,10 +8,6 @@
 return [
     false, // $matchHost
     [ // $staticRoutes
-        '/api/reset-password/request' => [
-            [['_route' => 'api_reset_password_request', '_controller' => 'App\\Controller\\ResetPasswordController::request'], null, ['POST' => 0], null, false, false, null],
-            [['_route' => 'api_forgot_password_request', '_controller' => 'App\\Controller\\ResetPasswordController::request'], null, ['POST' => 0], null, false, false, null],
-        ],
         '/_wdt/styles' => [[['_route' => '_wdt_stylesheet', '_controller' => 'web_profiler.controller.profiler::toolbarStylesheetAction'], null, null, null, false, false, null]],
         '/_profiler' => [[['_route' => '_profiler_home', '_controller' => 'web_profiler.controller.profiler::homeAction'], null, null, null, true, false, null]],
         '/_profiler/search' => [[['_route' => '_profiler_search', '_controller' => 'web_profiler.controller.profiler::searchAction'], null, null, null, false, false, null]],
@@ -20,8 +16,7 @@ return [
         '/_profiler/xdebug' => [[['_route' => '_profiler_xdebug', '_controller' => 'web_profiler.controller.profiler::xdebugAction'], null, null, null, false, false, null]],
         '/_profiler/open' => [[['_route' => '_profiler_open_file', '_controller' => 'web_profiler.controller.profiler::openAction'], null, null, null, false, false, null]],
         '/api/errors' => [[['_route' => 'api_error_create', '_controller' => 'App\\Controller\\ApiErrorController::receiveError'], null, ['POST' => 0], null, false, false, null]],
-        '/api/login' => [[['_route' => 'app_auth_login', '_controller' => 'App\\Controller\\AuthController::login'], null, ['POST' => 0], null, false, false, null]],
-        '/api/reset-password/reset' => [[['_route' => 'api_reset_password', '_controller' => 'App\\Controller\\ResetPasswordController::reset'], null, ['POST' => 0], null, false, false, null]],
+        '/api/liste' => [[['_route' => 'list', '_controller' => 'App\\Controller\\ApiErrorController::listErrors'], null, ['GET' => 0], null, false, false, null]],
         '/' => [[['_route' => 'app.swagger_ui', '_controller' => 'nelmio_api_doc.controller.swagger_ui'], null, ['GET' => 0], null, false, false, null]],
     ],
     [ // $regexpList
@@ -44,7 +39,10 @@ return [
                         .')'
                     .')'
                 .')'
-                .'|/api/user/([^/]++)/toggle\\-active(*:235)'
+                .'|/api/(?'
+                    .'|([^/]++)/status(*:225)'
+                    .'|interventions/([^/]++)(*:255)'
+                .')'
             .')/?$}sDu',
     ],
     [ // $dynamicRoutes
@@ -56,8 +54,9 @@ return [
         168 => [[['_route' => '_profiler_exception', '_controller' => 'web_profiler.controller.exception_panel::body'], ['token'], null, null, false, false, null]],
         181 => [[['_route' => '_profiler_exception_css', '_controller' => 'web_profiler.controller.exception_panel::stylesheet'], ['token'], null, null, false, false, null]],
         191 => [[['_route' => '_profiler', '_controller' => 'web_profiler.controller.profiler::panelAction'], ['token'], null, null, false, true, null]],
-        235 => [
-            [['_route' => 'app_user_toggleactive', '_controller' => 'App\\Controller\\UserController::toggleActive'], ['id'], ['PATCH' => 0], null, false, false, null],
+        225 => [[['_route' => 'api_error_ticket_update_status', '_controller' => 'App\\Controller\\ApiErrorController::updateStatus'], ['id'], ['POST' => 0, 'PUT' => 1], null, false, false, null]],
+        255 => [
+            [['_route' => 'api_bulk_intervention_upsert', '_controller' => 'App\\Controller\\ApiErrorController::intervention'], ['id'], ['POST' => 0], null, false, true, null],
             [null, null, null, null, false, false, 0],
         ],
     ],
