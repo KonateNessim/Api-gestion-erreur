@@ -175,7 +175,7 @@ class ApiErrorController extends ApiInterface
         $error->setStatusCode($data['status_code']);
         $error->setCount($data['count'] ?? 1);
         $error->setBrowser($data['browser'] ?? null);
-        $error->setBrowserVersion($data['browser_version'] ?? null);
+        $error->setBrowserVersion($data['browserVersion'] ?? null);
         $error->setProjectName($data['projectName'] ?? null);
         $error->setPriority($data['priority'] ?? 0);
         $error->setStatus($data['status'] ?? 'new');
