@@ -395,7 +395,7 @@ class ApiErrorController extends ApiInterface
 
         // TO DO
         $sendMailService->send(
-            'depps@myonmci.ci',
+            'konatehamed@gestion.kiffelesport.com',
             "konatenhamed@gmail.com",
             'Informations',
             'emails/critical_error.html.twig',
