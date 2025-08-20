@@ -115,7 +115,7 @@ class ApiErrorController extends ApiInterface
                 "konatehamed@kiffelesport.com",
                 "konatenhamed@gmail.com",
                 'Nouvelle Erreur Capturée',
-                'emails/error_notification.html.twig',
+                'emails/critical_error.html.twig',
                 [
                     'error' => $error,
                     'type' => $data['type']
