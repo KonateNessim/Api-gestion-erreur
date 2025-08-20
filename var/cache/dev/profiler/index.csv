@@ -37,3 +37,5 @@ c2f27c,127.0.0.1,GET,http://localhost:8000/favicon.ico,1755691759,6a284d,404,req
 8a8666,127.0.0.1,GET,http://localhost:8000/api/send_mail,1755691817,,200,request
 145c39,127.0.0.1,GET,http://localhost:8000/api/send_mail,1755691818,,200,request
 606e27,127.0.0.1,GET,http://127.0.0.1:8000/,1755691846,,200,request
+d830f2,127.0.0.1,GET,http://127.0.0.1:8000/,1755697090,f83aa4,500,request
+f83aa4,127.0.0.1,GET,http://127.0.0.1:8000/,1755697090,,500,request

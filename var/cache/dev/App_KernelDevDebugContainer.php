@@ -16,7 +16,7 @@ if (!\class_exists(App_KernelDevDebugContainer::class, false)) {
 
 return new \ContainerKxtovik\App_KernelDevDebugContainer([
     'container.build_hash' => 'Kxtovik',
-    'container.build_id' => '16726452',
-    'container.build_time' => 1755691758,
+    'container.build_id' => 'cfef348e',
+    'container.build_time' => 1755697089,
     'container.runtime_mode' => \in_array(\PHP_SAPI, ['cli', 'phpdbg', 'embed'], true) ? 'web=0' : 'web=1',
 ], __DIR__.\DIRECTORY_SEPARATOR.'ContainerKxtovik');

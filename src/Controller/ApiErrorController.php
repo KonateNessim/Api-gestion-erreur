@@ -60,7 +60,6 @@ class ApiErrorController extends ApiInterface
                     new OA\Property(property: "platform", type: "string"),
                     new OA\Property(property: "app_version", type: "string"),
                     new OA\Property(property: "count", type: "string"),
-                    new OA\Property(property: "priority", type: "string"),
                     new OA\Property(property: "os_version", type: "string"),
                 ],
                 type: "object"
