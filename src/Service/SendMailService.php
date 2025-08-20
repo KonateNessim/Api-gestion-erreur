@@ -37,21 +37,21 @@ class SendMailService
         array $attachments = []
     ): void {
         $email = (new TemplatedEmail())
-            ->from(new Address($from))
-            ->to(new Address($to))
+            ->from($from)
+            ->to($to)
             ->subject($subject)
             ->htmlTemplate($template)
             ->context($context);
 
-        foreach ($attachments as $attachment) {
+      /*   foreach ($attachments as $attachment) {
             $email->attachFromPath($attachment['path'], $attachment['filename']);
-        }
+        } */
         $this->mailer->send($email);
-        foreach ($attachments as $attachment) {
+      /*   foreach ($attachments as $attachment) {
             if (file_exists($attachment['path'])) {
                 unlink($attachment['path']);
             }
-        }
+        } */
     }
 
     public function handleCriticalErrorNotification(
