@@ -344,7 +344,7 @@ class ApiErrorController extends ApiInterface
 
             $intervention->setMessage($data['message']);
             $intervention->setDateIntervention(new \DateTime($data['dateIntervention']));
-            $intervention->setUser($data['user']);
+            /* $intervention->setUser($data['user']); */
             $intervention->setErrorTicket($errorTicket);
 
             $errors = $this->validator->validate($intervention);

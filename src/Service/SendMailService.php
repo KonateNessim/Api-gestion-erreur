@@ -37,8 +37,8 @@ class SendMailService
         array $attachments = []
     ): void {
         $email = (new TemplatedEmail())
-            ->from(new Address($this->emailSender))
-            ->to(new Address($this->emailReceiver))
+            ->from(new Address($from))
+            ->to(new Address($to))
             ->subject($subject)
             ->htmlTemplate($template)
             ->context($context);
@@ -83,8 +83,8 @@ class SendMailService
             }
 
             $this->send(
-                'depps@myonmci.ci',
-                'admin@example.com',
+                $this->emailSender,
+                $this->emailReceiver,
                 '🚨 Erreur Critique #' . $error->getId(),
                 'emails/critical_error.html.twig',
                 $context,
