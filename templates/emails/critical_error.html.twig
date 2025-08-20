@@ -8,13 +8,13 @@
 </head>
 <body>
     <h2>🚨 Erreur Critique Détectée</h2>
-    
+   {#  
     <p><strong>ID:</strong> {{ error.id }}</p>
     <p><strong>Date:</strong> {{ error.date|date('Y-m-d H:i:s') }}</p>
     <p><strong>Message:</strong> {{ error.message }}</p>
     <p><strong>Type:</strong> {{ error.type }}</p>
     <p><strong>Priorité:</strong> {{ error.priority }}</p>
-    <p><strong>Projet:</strong> {{ error.projectName }}</p>
+    <p><strong>Projet:</strong> {{ error.projectName }}</p> #}
     
     <h3>Détails supplémentaires:</h3>
     <p>Des rapports détaillés en format Excel et Word sont joints à cet email.</p>

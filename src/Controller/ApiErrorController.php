@@ -105,6 +105,18 @@ class ApiErrorController extends ApiInterface
             $em->persist($error);
             $em->flush();
 
+
+            $sendMailService->send(
+                "konatehamed@kiffelesport.com",
+                "konatenhamed@gmail.com",
+                'Nouvelle Erreur Capturée',
+                'emails/error_notification.html.twig',
+                [
+                    'error' => $error,
+                    'type' => $data['type']
+                ]
+            );
+
             if ($error->getPriority() == 1) {
                 $sendMailService->handleCriticalErrorNotification($error);
             }
