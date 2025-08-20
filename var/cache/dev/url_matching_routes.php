@@ -17,6 +17,7 @@ return [
         '/_profiler/open' => [[['_route' => '_profiler_open_file', '_controller' => 'web_profiler.controller.profiler::openAction'], null, null, null, false, false, null]],
         '/api/errors' => [[['_route' => 'api_error_create', '_controller' => 'App\\Controller\\ApiErrorController::receiveError'], null, ['POST' => 0], null, false, false, null]],
         '/api/liste' => [[['_route' => 'list', '_controller' => 'App\\Controller\\ApiErrorController::listErrors'], null, ['GET' => 0], null, false, false, null]],
+        '/api/send_mail' => [[['_route' => 'api_auth_send_mail', '_controller' => 'App\\Controller\\ApiErrorController::sendMail'], null, ['POST' => 0, 'GET' => 1], null, false, false, null]],
         '/' => [[['_route' => 'app.swagger_ui', '_controller' => 'nelmio_api_doc.controller.swagger_ui'], null, ['GET' => 0], null, false, false, null]],
     ],
     [ // $regexpList

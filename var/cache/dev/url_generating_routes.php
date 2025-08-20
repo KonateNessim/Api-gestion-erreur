@@ -22,9 +22,11 @@ return [
     'list' => [[], ['_controller' => 'App\\Controller\\ApiErrorController::listErrors'], [], [['text', '/api/liste']], [], [], []],
     'api_error_ticket_update_status' => [['id'], ['_controller' => 'App\\Controller\\ApiErrorController::updateStatus'], [], [['text', '/status'], ['variable', '/', '[^/]++', 'id', true], ['text', '/api']], [], [], []],
     'api_bulk_intervention_upsert' => [['id'], ['_controller' => 'App\\Controller\\ApiErrorController::intervention'], [], [['variable', '/', '[^/]++', 'id', true], ['text', '/api/interventions']], [], [], []],
+    'api_auth_send_mail' => [[], ['_controller' => 'App\\Controller\\ApiErrorController::sendMail'], [], [['text', '/api/send_mail']], [], [], []],
     'app.swagger_ui' => [[], ['_controller' => 'nelmio_api_doc.controller.swagger_ui'], [], [['text', '/']], [], [], []],
     'App\Controller\ApiErrorController::receiveError' => [[], ['_controller' => 'App\\Controller\\ApiErrorController::receiveError'], [], [['text', '/api/errors']], [], [], []],
     'App\Controller\ApiErrorController::listErrors' => [[], ['_controller' => 'App\\Controller\\ApiErrorController::listErrors'], [], [['text', '/api/liste']], [], [], []],
     'App\Controller\ApiErrorController::updateStatus' => [['id'], ['_controller' => 'App\\Controller\\ApiErrorController::updateStatus'], [], [['text', '/status'], ['variable', '/', '[^/]++', 'id', true], ['text', '/api']], [], [], []],
     'App\Controller\ApiErrorController::intervention' => [['id'], ['_controller' => 'App\\Controller\\ApiErrorController::intervention'], [], [['variable', '/', '[^/]++', 'id', true], ['text', '/api/interventions']], [], [], []],
+    'App\Controller\ApiErrorController::sendMail' => [[], ['_controller' => 'App\\Controller\\ApiErrorController::sendMail'], [], [['text', '/api/send_mail']], [], [], []],
 ];

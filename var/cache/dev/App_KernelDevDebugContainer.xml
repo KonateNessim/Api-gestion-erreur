@@ -83,6 +83,7 @@
     </parameter>
     <parameter key="kernel.charset">UTF-8</parameter>
     <parameter key="kernel.container_class">App_KernelDevDebugContainer</parameter>
+    <parameter key="mail_dsn">%env(MAILER_DSN)%</parameter>
     <parameter key="app.email.receiver">%env(resolve:EMAIL_RECEIVER)%</parameter>
     <parameter key="app.email.sender">%env(resolve:EMAIL_SENDER)%</parameter>
     <parameter key="event_dispatcher.event_aliases" type="collection">
@@ -470,7 +471,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver" priority="-50">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.orBQZND"/>
+      <argument type="service" id=".service_locator.jaPatWj"/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver" priority="-100">controller.argument_value_resolver</tag>
@@ -3349,7 +3350,7 @@
     </service>
     <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
       <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.orBQZND"/>
+      <argument type="service" id=".service_locator.jaPatWj"/>
     </service>
     <service id="debug.log_processor" class="Symfony\Bridge\Monolog\Processor\DebugProcessor">
       <tag name="kernel.reset" method="reset"/>
@@ -6645,7 +6646,7 @@
       <argument type="collection">
         <argument key="servers" type="collection">
           <argument type="collection">
-            <argument key="url">http://127.0.0.1:8000</argument>
+            <argument key="url">http://gestion.kiffelesport.com</argument>
           </argument>
         </argument>
         <argument key="info" type="collection">
@@ -7434,7 +7435,19 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.MHv9kKp" method="withContext"/>
     </service>
-    <service id=".service_locator.orBQZND" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.GCFxFMD" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="sendMailService" type="service_closure" id="App\Service\SendMailService"/>
+      </argument>
+    </service>
+    <service id=".service_locator.GCFxFMD.App\Controller\ApiErrorController::sendMail()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\ApiErrorController::sendMail()"/>
+      <argument>App\Controller\ApiErrorController::sendMail()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.GCFxFMD" method="withContext"/>
+    </service>
+    <service id=".service_locator.jaPatWj" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.1vYpZ1B.kernel::registerContainerConfiguration()"/>
@@ -7445,12 +7458,14 @@
         <argument key="App\Controller\ApiErrorController::listErrors" type="service_closure" id=".service_locator.tBn1YS1.App\Controller\ApiErrorController::listErrors()"/>
         <argument key="App\Controller\ApiErrorController::updateStatus" type="service_closure" id=".service_locator.fxUofQJ.App\Controller\ApiErrorController::updateStatus()"/>
         <argument key="App\Controller\ApiErrorController::intervention" type="service_closure" id=".service_locator.MHv9kKp.App\Controller\ApiErrorController::intervention()"/>
+        <argument key="App\Controller\ApiErrorController::sendMail" type="service_closure" id=".service_locator.GCFxFMD.App\Controller\ApiErrorController::sendMail()"/>
         <argument key="kernel:registerContainerConfiguration" type="service_closure" id=".service_locator.1vYpZ1B.kernel::registerContainerConfiguration()"/>
         <argument key="kernel:loadRoutes" type="service_closure" id=".service_locator.1vYpZ1B.kernel::loadRoutes()"/>
         <argument key="App\Controller\ApiErrorController:receiveError" type="service_closure" id=".service_locator.SiZiGcZ.App\Controller\ApiErrorController::receiveError()"/>
         <argument key="App\Controller\ApiErrorController:listErrors" type="service_closure" id=".service_locator.tBn1YS1.App\Controller\ApiErrorController::listErrors()"/>
         <argument key="App\Controller\ApiErrorController:updateStatus" type="service_closure" id=".service_locator.fxUofQJ.App\Controller\ApiErrorController::updateStatus()"/>
         <argument key="App\Controller\ApiErrorController:intervention" type="service_closure" id=".service_locator.MHv9kKp.App\Controller\ApiErrorController::intervention()"/>
+        <argument key="App\Controller\ApiErrorController:sendMail" type="service_closure" id=".service_locator.GCFxFMD.App\Controller\ApiErrorController::sendMail()"/>
       </argument>
     </service>
     <service id=".service_locator.UOjQrX." class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -9564,7 +9579,7 @@
     <service id="nelmio_api_doc.generator" alias="nelmio_api_doc.generator.default" public="true"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.ryAvHi4" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.orBQZND"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.jaPatWj"/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.W55Po6X"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="Psr\Log\LoggerInterface $requestLogger" alias="monolog.logger.request"/>
@@ -9590,7 +9605,7 @@
     <service id=".service_locator.oeWXF0n" alias="messenger.retry_strategy_locator"/>
     <service id=".service_locator.j4B3aic" alias="nelmio_api_doc.generator_locator"/>
     <service id=".service_locator.CBIx4lB" alias=".service_locator.UOjQrX."/>
-    <service id=".service_locator.CAHC_rO" alias=".service_locator.xOMXtM_"/>
+    <service id=".service_locator.l5k6wN_" alias=".service_locator.xOMXtM_"/>
     <service id="validator" alias="debug.validator"/>
     <service id="http_client" alias=".debug.http_client"/>
     <service id=".debug.http_client.inner" alias="http_client.uri_template"/>
@@ -9611,7 +9626,8 @@
     <service id=".service_locator..oIGCM." alias=".service_locator.tBn1YS1"/>
     <service id=".service_locator.fVUfjrD" alias=".service_locator.fxUofQJ"/>
     <service id=".service_locator.dOfPWbz" alias=".service_locator.MHv9kKp"/>
-    <service id=".service_locator.R9ruAZP" alias=".service_locator.xOMXtM_"/>
+    <service id=".service_locator.5J6RFsi" alias=".service_locator.GCFxFMD"/>
+    <service id=".service_locator.y7f9oYY" alias=".service_locator.xOMXtM_"/>
     <service id=".service_locator.cvPAAqY" alias=".service_locator.TJNRSaV"/>
   </services>
 </container>

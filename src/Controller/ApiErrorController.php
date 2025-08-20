@@ -47,15 +47,21 @@ class ApiErrorController extends ApiInterface
                     new OA\Property(property: "status", type: "string"),
                     new OA\Property(property: "browser", type: "string"),
                     new OA\Property(property: "line", type: "string"),
+                    new OA\Property(property: "file", type: "string"),
                     new OA\Property(property: "method", type: "string"),
                     new OA\Property(property: "projectName", type: "string"),
+                    new OA\Property(property: "controller", type: "string"),
                     new OA\Property(property: "statusCode", type: "string"),
-                    new OA\Property(property: "userUpdate", type: "string"),
-                    new OA\Property(property: "stackTrace", type: "string"),
+                    new OA\Property(property: "trace", type: "string"),
                     new OA\Property(property: "browserVersion", type: "string"),
                     new OA\Property(property: "appVersion", type: "string"),
+                    new OA\Property(property: "environnement", type: "string"),
+                    new OA\Property(property: "status_code", type: "string"),
                     new OA\Property(property: "platform", type: "string"),
-                    new OA\Property(property: "osVersion", type: "string"),
+                    new OA\Property(property: "app_version", type: "string"),
+                    new OA\Property(property: "count", type: "string"),
+                    new OA\Property(property: "priority", type: "string"),
+                    new OA\Property(property: "os_version", type: "string"),
                 ],
                 type: "object"
             )
@@ -171,7 +177,6 @@ class ApiErrorController extends ApiInterface
         $error->setCount($data['count'] ?? 1);
         $error->setBrowser($data['browser'] ?? null);
         $error->setBrowserVersion($data['browser_version'] ?? null);
-        $error->setStackTrace($data['stack_trace'] ?? []);
         $error->setProjectName($data['projectName'] ?? null);
         $error->setPriority($data['priority'] ?? 0);
         $error->setStatus($data['status'] ?? 'new');
@@ -196,7 +201,7 @@ class ApiErrorController extends ApiInterface
         $error->setCount($data['count'] ?? 1);
         $error->setPlatform($data['platform']);
         $error->setAppVersion($data['app_version'] ?? null);
-        $error->setStackTrace($data['stack_trace'] ?? []);
+        $error->setStackTrace($data['trace'] ?? []);
         $error->setAppVersion($data['app_version'] ?? null);
         $error->setProjectName($data['projectName'] ?? null);
         $error->setPriority($data['priority'] ?? 0);

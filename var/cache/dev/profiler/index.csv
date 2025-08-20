@@ -30,3 +30,10 @@ f1026a,127.0.0.1,POST,http://127.0.0.1:8000/api/errors,1755623265,,500,request
 d43488,127.0.0.1,POST,http://127.0.0.1:8000/api/errors,1755623294,,500,request
 fe0bab,127.0.0.1,POST,http://127.0.0.1:8000/api/errors,1755623331,,201,request
 860c19,127.0.0.1,GET,http://127.0.0.1:8000/api/liste,1755624205,,200,request
+8039e4,127.0.0.1,GET,http://localhost:8000/api/send_mail,1755691758,,200,request
+c2f27c,127.0.0.1,GET,http://localhost:8000/favicon.ico,1755691759,6a284d,404,request
+6a284d,127.0.0.1,GET,http://localhost:8000/favicon.ico,1755691759,,404,request
+7270be,127.0.0.1,GET,http://localhost:8000/api/send_mail,1755691816,,200,request
+8a8666,127.0.0.1,GET,http://localhost:8000/api/send_mail,1755691817,,200,request
+145c39,127.0.0.1,GET,http://localhost:8000/api/send_mail,1755691818,,200,request
+606e27,127.0.0.1,GET,http://127.0.0.1:8000/,1755691846,,200,request
