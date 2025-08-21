@@ -78,7 +78,7 @@ class ApiErrorController extends ApiInterface
         ErrorTicketRepository $errorTicketRepository,
         EntityManagerInterface $em,
         SendMailService $sendMailService,
-      
+
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -92,8 +92,11 @@ class ApiErrorController extends ApiInterface
             $existingError->setCount($existingError->getCount() + 1);
             $em->persist($existingError);
             $em->flush();
+            if ($existingError->getPriority() == 1) {
+                $sendMailService->handleCriticalErrorNotification($existingError);
+            }
             return $this->json(['message' => 'Erreur existante mise à jour.'], 200);
-        } else if($existingError && $existingError->getStatus() == 'resolved'){
+        } else if ($existingError && $existingError->getStatus() == 'resolved') {
             $existingError->setCount($existingError->getCount() + 1);
             $existingError->setStatus($data['status'] ?? 'new');
             $em->persist($existingError);
@@ -125,7 +128,7 @@ class ApiErrorController extends ApiInterface
             $em->flush();
 
 
-        /*     $sendMailService->send(
+            /*     $sendMailService->send(
                 "konatehamed@kiffelesport.com",
                 "konatenhamed@gmail.com",
                 'Nouvelle Erreur Capturée',
@@ -245,13 +248,13 @@ class ApiErrorController extends ApiInterface
             items: new OA\Items(ref: new Model(type: ErrorTicket::class, groups: ['full']))
         )
     )]
-    public function listErrors(Request $request,$type,$status, ErrorTicketRepository $errorTicketRepository, Paginator $paginator): JsonResponse
+    public function listErrors(Request $request, $type, $status, ErrorTicketRepository $errorTicketRepository, Paginator $paginator): JsonResponse
     {
         $page = $request->query->getInt('page', 1);
         $limit = $request->query->getInt('limit', 10);
 
 
-       
+
         $allErrors = $errorTicketRepository->findByStatusAndType($type, $status);
 
         $paginationResult = $paginator->paginate($allErrors, $page, $limit);
@@ -273,13 +276,13 @@ class ApiErrorController extends ApiInterface
             items: new OA\Items(ref: new Model(type: ErrorTicket::class, groups: ['full']))
         )
     )]
-    public function allListeError(Request $request ,ErrorTicketRepository $errorTicketRepository, Paginator $paginator): JsonResponse
+    public function allListeError(Request $request, ErrorTicketRepository $errorTicketRepository, Paginator $paginator): JsonResponse
     {
         $page = $request->query->getInt('page', 1);
         $limit = $request->query->getInt('limit', 10);
 
 
-       
+
         $allErrors = $errorTicketRepository->findAll();
 
         $paginationResult = $paginator->paginate($allErrors, $page, $limit);
@@ -455,7 +458,7 @@ class ApiErrorController extends ApiInterface
             ], 500);
         }
     }
-   
+
     #[Route('/delete/{id}',  methods: ['DELETE'])]
     /**
      * permet de supprimer un errorTicket.
@@ -468,33 +471,33 @@ class ApiErrorController extends ApiInterface
             items: new OA\Items(ref: new Model(type: ErrorTicket::class, groups: ['full']))
         )
     )]
-public function delete(Request $request, ErrorTicket $errorTicket, ErrorTicketRepository $errorTicketRepository): JsonResponse
-{
-    try {
-        if ($errorTicket != null) {
-            $errorTicketRepository->remove($errorTicket, true);
-            $this->setMessage("Opération effectuée avec succès");
-            return new JsonResponse([
-                'status' => 'success',
-                'message' => $this->getMessage(),
-                'data' => $errorTicket
-            ]);
-        } else {
-            $this->setMessage("Cette ressource est inexistante");
-            $this->setStatusCode(300);
+    public function delete(Request $request, ErrorTicket $errorTicket, ErrorTicketRepository $errorTicketRepository): JsonResponse
+    {
+        try {
+            if ($errorTicket != null) {
+                $errorTicketRepository->remove($errorTicket, true);
+                $this->setMessage("Opération effectuée avec succès");
+                return new JsonResponse([
+                    'status' => 'success',
+                    'message' => $this->getMessage(),
+                    'data' => $errorTicket
+                ]);
+            } else {
+                $this->setMessage("Cette ressource est inexistante");
+                $this->setStatusCode(300);
+                return new JsonResponse([
+                    'status' => 'error',
+                    'message' => $this->getMessage(),
+                    'data' => []
+                ], 300);
+            }
+        } catch (\Exception $exception) {
+            $this->setMessage("Une erreur est survenue");
             return new JsonResponse([
                 'status' => 'error',
                 'message' => $this->getMessage(),
                 'data' => []
-            ], 300);
+            ], 500);
         }
-    } catch (\Exception $exception) {
-        $this->setMessage("Une erreur est survenue");
-        return new JsonResponse([
-            'status' => 'error',
-            'message' => $this->getMessage(),
-            'data' => []
-        ], 500);
     }
-}
 }
