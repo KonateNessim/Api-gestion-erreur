@@ -78,7 +78,6 @@ class ApiErrorController extends ApiInterface
         ErrorTicketRepository $errorTicketRepository,
         EntityManagerInterface $em,
         SendMailService $sendMailService,
-
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -86,64 +85,44 @@ class ApiErrorController extends ApiInterface
             return $this->json(['error' => 'Données invalides ou incomplètes.'], 400);
         }
 
-        $existingError = $errorTicketRepository->findOneBy(['hash' => $data['hash']]);
-
-        if ($existingError && $existingError->getStatus() !== 'resolved') {
-            $existingError->setCount($existingError->getCount() + 1);
-            $em->persist($existingError);
-            $em->flush();
-            if ($existingError->getPriority() == 1) {
-                $sendMailService->handleCriticalErrorNotification($existingError);
-            }
-            return $this->json(['message' => 'Erreur existante mise à jour.'], 200);
-        } else if ($existingError && $existingError->getStatus() == 'resolved') {
-            $existingError->setCount($existingError->getCount() + 1);
-            $existingError->setStatus($data['status'] ?? 'new');
-            $em->persist($existingError);
-            $em->flush();
-            return $this->json(['message' => 'Erreur existante mise à jour.'], 200);
-        }
-
-
-
         try {
-            switch ($data['type']) {
-                case 'backend':
-                    $error = $this->createBackendError($data);
-                    break;
+            $existingError = $errorTicketRepository->findOneBy(['hash' => $data['hash']]);
 
-                case 'frontendWeb':
-                    $error = $this->createFrontendErrorWeb($data);
-                    break;
+            if ($existingError) {
+                // Mise à jour erreur existante
+                $existingError->setCount($existingError->getCount() + 1);
 
-                case 'frontendMobile':
-                    $error = $this->createFrontendErrorMobile($data);
-                    break;
+                if ($existingError->getStatus() === 'resolved') {
+                    $existingError->setStatus($data['status'] ?? 'new');
+                }
 
-                default:
-                    return $this->json(['error' => 'Type d\'erreur non supporté'], 400);
+                $em->flush();
+
+                if ($existingError->getPriority() === 1) {
+                    $sendMailService->handleCriticalErrorNotification($existingError);
+                }
+
+                return $this->json(['message' => 'Erreur existante mise à jour.'], 200);
             }
+
+            // Création nouvelle erreur
+            $error = match ($data['type']) {
+                'backend' => $this->createBackendError($data),
+                'frontendWeb' => $this->createFrontendErrorWeb($data),
+                'frontendMobile' => $this->createFrontendErrorMobile($data),
+                default => throw new \InvalidArgumentException('Type d\'erreur non supporté')
+            };
 
             $em->persist($error);
             $em->flush();
 
-
-            /*     $sendMailService->send(
-                "konatehamed@kiffelesport.com",
-                "konatenhamed@gmail.com",
-                'Nouvelle Erreur Capturée',
-                'emails/critical_error.html.twig',
-                [
-                    'error' => $error,
-                    'type' => $data['type']
-                ]
-            ); */
-
-            if ($error->getPriority() == 1) {
+            if ($error->getPriority() === 1) {
                 $sendMailService->handleCriticalErrorNotification($error);
             }
 
             return $this->json(['message' => 'Erreur enregistrée avec succès.'], 201);
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['error' => $e->getMessage()], 400);
         } catch (\Exception $e) {
             return $this->json(['error' => 'Erreur lors du traitement: ' . $e->getMessage()], 500);
         }
