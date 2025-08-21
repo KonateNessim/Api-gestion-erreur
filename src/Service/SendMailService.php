@@ -13,19 +13,18 @@ class SendMailService
     private $mailer;
     private string $emailSender;
     private string $emailReceiver;
-
+    private ReportGeneratorService $reportGenerator;
 
     public function __construct(
         MailerInterface $mailer,
-        private    ReportGeneratorService $reportGenerator,
+        ReportGeneratorService $reportGenerator,
         string $emailSender,
         string $emailReceiver
     ) {
         $this->mailer = $mailer;
+        $this->reportGenerator = $reportGenerator;
         $this->emailSender = $emailSender;
         $this->emailReceiver = $emailReceiver;
-
-        //dd($this->emailSender);
     }
 
     public function send(
@@ -46,7 +45,10 @@ class SendMailService
         foreach ($attachments as $attachment) {
             $email->attachFromPath($attachment['path'], $attachment['filename']);
         }
+        
         $this->mailer->send($email);
+        
+        // Nettoyage des fichiers après envoi
         foreach ($attachments as $attachment) {
             if (file_exists($attachment['path'])) {
                 unlink($attachment['path']);
@@ -69,6 +71,8 @@ class SendMailService
                 'date' => new \DateTime(),
                 'attachments_generated' => false
             ];
+
+            // Génération du rapport Excel
             $excelReport = $this->reportGenerator->safeGenerateExcelReport($error);
             if ($excelReport && file_exists($excelReport)) {
                 $excelFilename = sprintf(
@@ -79,12 +83,13 @@ class SendMailService
 
                 $attachments[] = [
                     'path' => $excelReport,
-                    'filename' => $excelFilename,
-                    'contentType' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    'filename' => $excelFilename
                 ];
                 $generatedFiles[] = $excelReport;
                 $context['attachments_generated'] = true;
             }
+
+            // Génération du rapport Word
             $wordReport = $this->reportGenerator->safeGenerateWordReport($error);
             if ($wordReport && file_exists($wordReport)) {
                 $wordFilename = sprintf(
@@ -95,24 +100,29 @@ class SendMailService
 
                 $attachments[] = [
                     'path' => $wordReport,
-                    'filename' => $wordFilename,
-                    'contentType' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                    'filename' => $wordFilename
                 ];
                 $generatedFiles[] = $wordReport;
                 $context['attachments_generated'] = true;
             }
 
+            // Envoi de l'email
             $this->send(
                 $this->emailSender,
                 $this->emailReceiver,
-                '🚨 Erreur Critique #' . $error->getId() . ' - ' . $error->getMessage(),
+                '🚨 Erreur Critique #' . $error->getId() . ' - ' . substr($error->getMessage(), 0, 50) . '...',
                 'emails/critical_error.html.twig',
                 $context,
                 $attachments
             );
+
+            // Nettoyage supplémentaire (redondant mais sécurisé)
             $this->cleanupGeneratedFiles($generatedFiles);
+
         } catch (\Exception $e) {
+            // Nettoyage en cas d'erreur
             $this->cleanupGeneratedFiles($generatedFiles);
+            
             error_log('Erreur lors de la notification d\'erreur critique: ' . $e->getMessage());
             throw $e;
         }
@@ -129,5 +139,45 @@ class SendMailService
                 }
             }
         }
+    }
+
+    /**
+     * Méthode utilitaire pour envoyer des emails simples sans attachments
+     */
+    public function sendSimpleEmail(
+        string $subject,
+        string $template,
+        array $context = [],
+        ?string $to = null,
+        ?string $from = null
+    ): void {
+        $this->send(
+            $from ?? $this->emailSender,
+            $to ?? $this->emailReceiver,
+            $subject,
+            $template,
+            $context
+        );
+    }
+
+    /**
+     * Méthode pour envoyer des emails avec des pièces jointes personnalisées
+     */
+    public function sendWithAttachments(
+        string $subject,
+        string $template,
+        array $attachments = [],
+        array $context = [],
+        ?string $to = null,
+        ?string $from = null
+    ): void {
+        $this->send(
+            $from ?? $this->emailSender,
+            $to ?? $this->emailReceiver,
+            $subject,
+            $template,
+            $context,
+            $attachments
+        );
     }
 }
