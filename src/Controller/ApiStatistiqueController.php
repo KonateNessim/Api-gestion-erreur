@@ -15,7 +15,7 @@ use Symfony\Component\Mime\Email;
 
 #[Route('/api/statistique')]
 #[OA\Tag(name: 'statistique')]
-class ApiErrorController extends ApiInterface
+class ApiStatistiqueController extends ApiInterface
 {
 
     #[Route('/send_mail', name: 'api_auth_send_mail', methods: ['POST', "GET"])]
