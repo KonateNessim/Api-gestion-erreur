@@ -125,7 +125,7 @@ class ApiErrorController extends ApiInterface
             $em->flush();
 
 
-            $sendMailService->send(
+        /*     $sendMailService->send(
                 "konatehamed@kiffelesport.com",
                 "konatenhamed@gmail.com",
                 'Nouvelle Erreur Capturée',
@@ -134,7 +134,7 @@ class ApiErrorController extends ApiInterface
                     'error' => $error,
                     'type' => $data['type']
                 ]
-            );
+            ); */
 
             if ($error->getPriority() == 1) {
                 $sendMailService->handleCriticalErrorNotification($error);
