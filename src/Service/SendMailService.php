@@ -45,9 +45,9 @@ class SendMailService
         foreach ($attachments as $attachment) {
             $email->attachFromPath($attachment['path'], $attachment['filename']);
         }
-        
+
         $this->mailer->send($email);
-        
+
         // Nettoyage des fichiers après envoi
         foreach ($attachments as $attachment) {
             if (file_exists($attachment['path'])) {
@@ -118,11 +118,10 @@ class SendMailService
 
             // Nettoyage supplémentaire (redondant mais sécurisé)
             $this->cleanupGeneratedFiles($generatedFiles);
-
         } catch (\Exception $e) {
             // Nettoyage en cas d'erreur
             $this->cleanupGeneratedFiles($generatedFiles);
-            
+
             error_log('Erreur lors de la notification d\'erreur critique: ' . $e->getMessage());
             throw $e;
         }
