@@ -7,8 +7,10 @@ use App\Entity\ErrorBackend;
 use App\Entity\ErrorFrontMobile;
 use App\Entity\ErrorFrontWeb;
 use App\Entity\ErrorTicket;
+use App\Entity\HistoryAffectUser;
 use App\Entity\Intervention;
 use App\Repository\ErrorTicketRepository;
+use App\Repository\HistoryAffectUserRepository;
 use App\Repository\InterventionRepository;
 use App\Service\SendMailService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,9 +20,11 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Service\Paginator;
 use App\Service\ReportGeneratorService;
 use DateTime;
+use GuzzleHttp\Psr7\Response;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-
+use PhpOffice\PhpSpreadsheet\Calculation\DateTimeExcel\Date;
+use PHPUnit\Framework\Attributes\Ticket;
 
 #[Route('/api')]
 #[OA\Tag(name: 'Errors')]
@@ -55,7 +59,7 @@ class ApiErrorController extends ApiInterface
                     new OA\Property(property: "trace", type: "string"),
                     new OA\Property(property: "browserVersion", type: "string"),
                     new OA\Property(property: "appVersion", type: "string"),
-                    new OA\Property(property: "environnement", type: "string"),
+                    new OA\Property(property: "environment", type: "string"),
                     new OA\Property(property: "status_code", type: "string"),
                     new OA\Property(property: "platform", type: "string"),
                     new OA\Property(property: "app_version", type: "string"),
@@ -73,7 +77,8 @@ class ApiErrorController extends ApiInterface
         Request $request,
         ErrorTicketRepository $errorTicketRepository,
         EntityManagerInterface $em,
-        SendMailService $sendMailService
+        SendMailService $sendMailService,
+      
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -84,10 +89,19 @@ class ApiErrorController extends ApiInterface
         $existingError = $errorTicketRepository->findOneBy(['hash' => $data['hash']]);
 
         if ($existingError && $existingError->getStatus() !== 'resolved') {
-            $existingError->incrementCount();
+            $existingError->setCount($existingError->getCount() + 1);
+            $em->persist($existingError);
+            $em->flush();
+            return $this->json(['message' => 'Erreur existante mise à jour.'], 200);
+        } else if($existingError && $existingError->getStatus() == 'resolved'){
+            $existingError->setCount($existingError->getCount() + 1);
+            $existingError->setStatus($data['status'] ?? 'new');
+            $em->persist($existingError);
             $em->flush();
             return $this->json(['message' => 'Erreur existante mise à jour.'], 200);
         }
+
+
 
         try {
             switch ($data['type']) {
@@ -199,7 +213,6 @@ class ApiErrorController extends ApiInterface
         $error->setOsVersion($data['os_version']);
         $error->setCount($data['count'] ?? 1);
         $error->setPlatform($data['platform']);
-        $error->setAppVersion($data['app_version'] ?? null);
         $error->setStackTrace($data['trace'] ?? []);
         $error->setAppVersion($data['app_version'] ?? null);
         $error->setProjectName($data['projectName'] ?? null);
@@ -219,6 +232,34 @@ class ApiErrorController extends ApiInterface
     }
 
 
+    #[Route('/liste/{status}/{type}', name: 'list', methods: ['GET'])]
+    /**
+     * Retourne la liste des erreurs.
+     * 
+     */
+    #[OA\Response(
+        response: 200,
+        description: 'Returns the rewards of an user',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: ErrorTicket::class, groups: ['full']))
+        )
+    )]
+    public function listErrors(Request $request,$type,$status, ErrorTicketRepository $errorTicketRepository, Paginator $paginator): JsonResponse
+    {
+        $page = $request->query->getInt('page', 1);
+        $limit = $request->query->getInt('limit', 10);
+
+
+       
+        $allErrors = $errorTicketRepository->findByStatusAndType($type, $status);
+
+        $paginationResult = $paginator->paginate($allErrors, $page, $limit);
+
+
+        $response =  $this->responseData($allErrors, 'group_1', ['Content-Type' => 'application/json']);
+        return $response; //$this->json($paginationResult->toArray());
+    }
     #[Route('/liste', name: 'list', methods: ['GET'])]
     /**
      * Retourne la liste des erreurs.
@@ -232,16 +273,20 @@ class ApiErrorController extends ApiInterface
             items: new OA\Items(ref: new Model(type: ErrorTicket::class, groups: ['full']))
         )
     )]
-    public function listErrors(Request $request, ErrorTicketRepository $errorTicketRepository, Paginator $paginator): JsonResponse
+    public function allListeError(Request $request ,ErrorTicketRepository $errorTicketRepository, Paginator $paginator): JsonResponse
     {
         $page = $request->query->getInt('page', 1);
         $limit = $request->query->getInt('limit', 10);
 
+
+       
         $allErrors = $errorTicketRepository->findAll();
 
         $paginationResult = $paginator->paginate($allErrors, $page, $limit);
 
-        return $this->json($paginationResult->toArray());
+
+        $response =  $this->responseData($allErrors, 'group_1', ['Content-Type' => 'application/json']);
+        return $response; //$this->json($paginationResult->toArray());
     }
 
 
@@ -256,6 +301,7 @@ class ApiErrorController extends ApiInterface
                 properties: [
                     new OA\Property(property: "user", type: "string"),
                     new OA\Property(property: "status", type: "string"),
+                    new OA\Property(property: "userUpdate", type: "string"),
 
                 ],
                 type: "object"
@@ -268,15 +314,21 @@ class ApiErrorController extends ApiInterface
     public function updateStatus(
         ErrorTicket $errorTicket,
         Request $request,
-        ErrorTicketRepository $repository
+        ErrorTicketRepository $repository,
+        HistoryAffectUserRepository $historyAffectUserRepository
     ): JsonResponse {
 
         $data = json_decode($request->getContent(), true);
 
+        $affectUser = $historyAffectUserRepository->findOneBy(['ticket' => $errorTicket, 'user' => $data['user']]);
+
         try {
             $errorTicket->setStatus($data['status']);
-            $errorTicket->setUserUpdate($data['user']);
+            $errorTicket->setUserUpdate($data['userUpdate'] ?? null);
+            $errorTicket->setUser($data['user'] ?? null);
             $errorTicket->setUpdateDate(new DateTime());
+
+
 
             $errors = $this->errorResponse($errorTicket);
             if ($errors !== null) {
@@ -284,6 +336,17 @@ class ApiErrorController extends ApiInterface
             }
 
             $repository->add($errorTicket, true);
+
+            if ($affectUser == null) {
+                $affectUser = new HistoryAffectUser();
+                $affectUser->setUser($data['status']);
+                $affectUser->setTicket($errorTicket);
+                $affectUser->setDate(new DateTime());
+                $historyAffectUserRepository->add($affectUser, true);
+            } else {
+                $affectUser->setDateFin(new DateTime());
+                $historyAffectUserRepository->add($affectUser, true);
+            }
 
             return $this->responseData($errorTicket, 'group_1', ['Content-Type' => 'application/json']);
         } catch (\InvalidArgumentException $e) {
@@ -319,7 +382,7 @@ class ApiErrorController extends ApiInterface
             )
         )
     )]
-    public function intervention(Request $request, ErrorTicket $errorTicket,  InterventionRepository $interventionRepo): JsonResponse
+    public function intervention(Request $request, ErrorTicket $errorTicket,  InterventionRepository $interventionRepo)
     {
         $data = json_decode($request->getContent(), true);
 
@@ -338,7 +401,7 @@ class ApiErrorController extends ApiInterface
         return $this->responseData($errorTicket, 'group_1', ['Content-Type' => 'application/json']);
     }
 
-    private function processIntervention(array $data, ErrorTicket $errorTicket, InterventionRepository $interventionRepo): array
+    private function processIntervention(array $data, ErrorTicket $errorTicket, InterventionRepository $interventionRepo): JsonResponse
     {
         $result = [
             'input' => $data,
@@ -347,21 +410,26 @@ class ApiErrorController extends ApiInterface
         ];
 
         try {
-
-
-            if (isset($data['id']) != null) {
+            // Vérifier si on doit mettre à jour une intervention existante
+            if (isset($data['id']) && $data['id'] !== null && $data['id'] !== '') {
                 $intervention = $interventionRepo->find($data['id']);
                 if (!$intervention) {
                     throw new \InvalidArgumentException("Intervention non trouvée");
                 }
+                $result['action'] = 'update';
             } else {
+                // Créer une nouvelle intervention
                 $intervention = new Intervention();
+                $result['action'] = 'create';
             }
 
+            // Mettre à jour les champs de l'intervention
             $intervention->setMessage($data['message']);
             $intervention->setDateIntervention(new \DateTime($data['dateIntervention']));
-            /* $intervention->setUser($data['user']); */
-            $intervention->setErrorTicket($errorTicket);
+            $intervention->setUser("KONATE");
+            $intervention->setStatus($data['status']);
+            $intervention->setTicket($errorTicket);
+
 
             $errors = $this->validator->validate($intervention);
             if (count($errors) > 0) {
@@ -369,43 +437,64 @@ class ApiErrorController extends ApiInterface
             }
 
 
-            $intervention->add($intervention, true);
+            $interventionRepo->add($intervention, true);
 
             $result['success'] = true;
-            $result['intervention'] = [
-                'id' => $intervention->getId(),
-                'message' => $intervention->getMessage(),
-                'dateIntervention' => $intervention->getDateIntervention()->format('c'),
-                'user' => $intervention->getUser(),
-                'errorTicketId' => $intervention->getErrorTicket()->getId()
-            ];
+
+            return new JsonResponse([
+                'success' => true,
+                'action' => $result['action'],
+            ]);
         } catch (\Exception $e) {
-            $result['error'] = $e->getMessage();
+            $this->setMessage($e->getMessage());
+
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'message' => 'Erreur lors du traitement de l\'intervention'
+            ], 500);
         }
-
-        return $result;
     }
-
-
-    #[Route('/send_mail', name: 'api_auth_send_mail', methods: ['POST',"GET"])]
-    public function sendMail(Request $request,SendMailService $sendMailService): JsonResponse
-    {
-        $info_user = [
-            'login' => "konatenhamed@gmail.com",
-            'password' => "eeeee"
-        ];
-
-        $context = compact('info_user');
-
-        // TO DO
-        $sendMailService->send(
-            'konatehamed@kiffelesport.com',
-            "konatenhamed@gmail.com",
-            'Informations',
-            'emails/critical_error.html.twig',
-            $context
-        );
-       
-        return new JsonResponse(['message' => 'Cette route est gérée par LexikJWTAuthenticationBundle'], 200);
+   
+    #[Route('/delete/{id}',  methods: ['DELETE'])]
+    /**
+     * permet de supprimer un errorTicket.
+     */
+    #[OA\Response(
+        response: 200,
+        description: 'permet de supprimer un(e) errorTicket',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: ErrorTicket::class, groups: ['full']))
+        )
+    )]
+public function delete(Request $request, ErrorTicket $errorTicket, ErrorTicketRepository $errorTicketRepository): JsonResponse
+{
+    try {
+        if ($errorTicket != null) {
+            $errorTicketRepository->remove($errorTicket, true);
+            $this->setMessage("Opération effectuée avec succès");
+            return new JsonResponse([
+                'status' => 'success',
+                'message' => $this->getMessage(),
+                'data' => $errorTicket
+            ]);
+        } else {
+            $this->setMessage("Cette ressource est inexistante");
+            $this->setStatusCode(300);
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => $this->getMessage(),
+                'data' => []
+            ], 300);
+        }
+    } catch (\Exception $exception) {
+        $this->setMessage("Une erreur est survenue");
+        return new JsonResponse([
+            'status' => 'error',
+            'message' => $this->getMessage(),
+            'data' => []
+        ], 500);
     }
+}
 }

@@ -74,7 +74,7 @@ class ErrorTicket
     #[Groups(["group_1"])]
     private string $hash;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'integer',nullable: true)]
     #[Groups(["group_1"])]
     private int $count = 1;
 
@@ -105,7 +105,12 @@ class ErrorTicket
     /**
      * @var Collection<int, Intervention>
      */
-    #[ORM\OneToMany(targetEntity: Intervention::class, mappedBy: 'ticket')]
+    #[ORM\OneToMany(
+        targetEntity: Intervention::class,
+        mappedBy: 'ticket',
+        cascade: ['persist', 'remove'],
+        orphanRemoval: true
+    )]
     #[Groups(["group_1"])]
     private Collection $interventions;
 
@@ -113,9 +118,26 @@ class ErrorTicket
     #[Groups(["group_1"])]
     private array $stackTrace = [];
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(["group_1"])]
+    private ?string $user = null;
+
+    /**
+     * @var Collection<int, HistoryAffectUser>
+     */
+    #[ORM\OneToMany(
+        targetEntity: HistoryAffectUser::class,
+        mappedBy: 'ticket',
+        cascade: ['persist', 'remove'],
+        orphanRemoval: true
+    )]
+    #[Groups(["group_1"])]
+    private Collection $historyAffectUsers;
+
     public function __construct()
     {
         $this->interventions = new ArrayCollection();
+        $this->historyAffectUsers = new ArrayCollection();
     }
 
 
@@ -309,6 +331,48 @@ class ErrorTicket
     public function setStackTrace(array $stackTrace): self
     {
         $this->stackTrace = $stackTrace;
+        return $this;
+    }
+
+    public function getUser(): ?string
+    {
+        return $this->user;
+    }
+
+    public function setUser(?string $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, HistoryAffectUser>
+     */
+    public function getHistoryAffectUsers(): Collection
+    {
+        return $this->historyAffectUsers;
+    }
+
+    public function addHistoryAffectUser(HistoryAffectUser $historyAffectUser): static
+    {
+        if (!$this->historyAffectUsers->contains($historyAffectUser)) {
+            $this->historyAffectUsers->add($historyAffectUser);
+            $historyAffectUser->setTicket($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHistoryAffectUser(HistoryAffectUser $historyAffectUser): static
+    {
+        if ($this->historyAffectUsers->removeElement($historyAffectUser)) {
+            // set the owning side to null (unless already changed)
+            if ($historyAffectUser->getTicket() === $this) {
+                $historyAffectUser->setTicket(null);
+            }
+        }
+
         return $this;
     }
 }

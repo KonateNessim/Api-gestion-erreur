@@ -31,6 +31,10 @@ class Intervention
     #[ORM\ManyToOne(inversedBy: 'interventions')]
     private ?ErrorTicket $ticket = null;
 
+    #[ORM\Column(length: 255,)]
+    #[Groups([ "group_1"])]
+    private ?string $status = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -80,6 +84,18 @@ class Intervention
     public function setTicket(?ErrorTicket $ticket): static
     {
         $this->ticket = $ticket;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }
