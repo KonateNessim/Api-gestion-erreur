@@ -242,7 +242,7 @@ class ApiErrorController extends ApiInterface
         $response =  $this->responseData($allErrors, 'group_1', ['Content-Type' => 'application/json']);
         return $response; //$this->json($paginationResult->toArray());
     }
-    #[Route('/liste', name: 'list', methods: ['GET'])]
+    #[Route('/liste', name: 'list_', methods: ['GET'])]
     /**
      * Retourne la liste des erreurs.
      * 
