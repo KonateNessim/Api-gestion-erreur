@@ -4,14 +4,15 @@
 namespace App\Controller;
 
 use App\Controller\Config\ApiInterface;
+use App\Entity\ErrorTicket;
 use App\Repository\ErrorTicketRepository;
 use App\Service\ReportGeneratorService;
 use App\Service\SendMailService;
 use Error;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use Symfony\Component\Routing\Annotation\Route;
 use OpenApi\Attributes as OA;
-use Psr\Log\LoggerInterface;
-use Sentry\HttpClient\Request;
+
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Mailer\MailerInterface;
@@ -22,25 +23,35 @@ use Symfony\Component\Mime\Email;
 class ApiStatistiqueController extends ApiInterface
 {
 
-    #[Route('/send_mail', name: 'api_auth_send_mail', methods: ['POST', "GET"])]
-    public function generateReport(ReportGeneratorService $reportService, ErrorTicketRepository $errorTicketRepository)
+    #[Route('/',methods: ['POST', "GET"])]
+    /**
+     * statistiques.
+     * 
+     */
+    #[OA\Response(
+        response: 200,
+        description: 'Returns the rewards of an user',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: ErrorTicket::class, groups: ['full']))
+        )
+    )]
+    public function index( ErrorTicketRepository $errorTicketRepository): JsonResponse
     {
-        $error = $errorTicketRepository->find(17);
+    
 
+        $errorCritiqueBackend = $errorTicketRepository->findBy(['type' => 'backend','priority'=> 1]);
+        $errorCritiqueMobile = $errorTicketRepository->findBy(['type' => 'frontendMobile','priority'=> 1]);
+        $errorCritiqueWeb = $errorTicketRepository->findBy(['type' => 'frontendWeb','priority'=> 1]);
 
-        if (!$error) {
-            return new JsonResponse(['error' => 'Erreur non trouvée'], 404);
-        }
+        $allErrors = [
+            'backend' => count($errorCritiqueBackend),
+            'frontendMobile' => count($errorCritiqueMobile),
+            'frontendWeb' => count($errorCritiqueWeb)
+        ];
 
-        try {
-            $excelFile = $reportService->generateExcelReport($error);
-
-            return new BinaryFileResponse($excelFile, 200, [
-                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'Content-Disposition' => 'attachment; filename="error_report.xlsx"'
-            ]);
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 500);
-        }
+    
+        $response =  $this->responseData($allErrors, 'group_1', ['Content-Type' => 'application/json']);
+        return $response;
     }
 }
