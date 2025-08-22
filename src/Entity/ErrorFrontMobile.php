@@ -4,19 +4,23 @@ namespace App\Entity;
 
 use App\Repository\ErrorFrontMobileRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ErrorFrontMobileRepository::class)]
 class ErrorFrontMobile extends ErrorTicket
 {
 
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    #[Groups(["group_1"])]
     private ?string $osVersion;
 
 
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    #[Groups(["group_1"])]
     private ?string $appVersion = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[Groups(["group_1"])]
     private string $platform;
 
 
